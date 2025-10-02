@@ -2,11 +2,54 @@ package hw02unpackstring
 
 import (
 	"errors"
+	"strconv"
+	"unicode"
 )
 
 var ErrInvalidString = errors.New("invalid string")
 
-func Unpack(_ string) (string, error) {
-	// Place your code here.
-	return "", nil
+func Unpack(input string) (string, error) {
+	if input == "" {
+		return "", nil
+	}
+
+	var result []rune
+	var prev rune
+	prevIsLetterOrNewline := false
+
+	runes := []rune(input)
+
+	for i := 0; i < len(runes); i++ {
+		curr := runes[i]
+
+		switch {
+		case unicode.IsLetter(curr) || curr == '\n':
+			result = append(result, curr)
+			prev = curr
+			prevIsLetterOrNewline = true
+
+		case unicode.IsDigit(curr):
+			if i+1 < len(runes) && unicode.IsDigit(runes[i+1]) {
+				return "", ErrInvalidString
+			}
+			if !prevIsLetterOrNewline {
+				return "", ErrInvalidString
+			}
+			count, err := strconv.Atoi(string(curr))
+			if err != nil {
+				return "", ErrInvalidString
+			}
+			if count == 0 {
+				result = result[:len(result)-1]
+			} else {
+				for j := 1; j < count; j++ {
+					result = append(result, prev)
+				}
+			}
+		default:
+			result = append(result, curr)
+			prevIsLetterOrNewline = false
+		}
+	}
+	return string(result), nil
 }
