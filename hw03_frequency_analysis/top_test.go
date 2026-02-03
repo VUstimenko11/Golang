@@ -79,4 +79,50 @@ func TestTop10(t *testing.T) {
 			require.Equal(t, expected, Top10(text))
 		}
 	})
+
+	t.Run("no words in whitespace string", func(t *testing.T) {
+		require.Len(t, Top10("   \t\n  "), 0)
+	})
+
+	t.Run("less than 10 unique words", func(t *testing.T) {
+		text := "cat dog cat dog bird"
+		expected := []string{"cat", "dog", "bird"}
+		require.Equal(t, expected, Top10(text))
+	})
+
+	t.Run("all words same frequency", func(t *testing.T) {
+		text := "a b c d e f g h i j"
+		expected := []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j"}
+		require.Equal(t, expected, Top10(text))
+	})
+
+	t.Run("words with punctuation", func(t *testing.T) {
+		text := "hello, world! hello test."
+		expected := []string{"hello", "hello,", "test.", "world!"}
+		require.Equal(t, expected, Top10(text))
+	})
+
+	t.Run("hyphen as separate word", func(t *testing.T) {
+		text := "test - test -- test"
+		expected := []string{"test", "-", "--"}
+		require.Equal(t, expected, Top10(text))
+	})
+
+	t.Run("case sensitive test", func(t *testing.T) {
+		text := "Cat cat CAT CAt"
+		expected := []string{"CAT", "CAt", "Cat", "cat"}
+		require.Equal(t, expected, Top10(text))
+	})
+
+	t.Run("single repeated word", func(t *testing.T) {
+		text := "test test test test test test test test test test"
+		expected := []string{"test"}
+		require.Equal(t, expected, Top10(text))
+	})
+
+	t.Run("multiple spaces and tabs", func(t *testing.T) {
+		text := "a  \t b   \n c \t  d"
+		expected := []string{"a", "b", "c", "d"}
+		require.Equal(t, expected, Top10(text))
+	})
 }
